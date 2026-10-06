@@ -1,0 +1,3 @@
+# app.json is the Expo manifest cix's artifact gate inspects — a doc
+# subject, not a file in this repo.
+ignore: ["app.json"]
