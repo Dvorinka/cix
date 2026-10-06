@@ -16,7 +16,7 @@ esac
 case "$os" in linux|darwin) ;; *) echo "unsupported os: $os (use go install)" >&2; exit 1 ;; esac
 
 VER_VAR="CIX_VERSION"
-VER=$(eval "echo \$$VER_VAR")
+VER=$(eval "echo \"\${$VER_VAR:-}\"")
 if [ -z "$VER" ]; then
   VER=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" | grep '"tag_name"' | cut -d'"' -f4)
 fi
