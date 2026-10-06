@@ -32,6 +32,7 @@ type Config struct {
 	Artifact     ArtifactCfg      `yaml:"artifact"`
 	Gate         string           `yaml:"gate"`
 	DefaultRef   string           `yaml:"default_ref"`
+	Signatures   []SigRule        `yaml:"signatures"`
 }
 
 // DefaultConfig returns the built-in defaults.
@@ -83,5 +84,9 @@ func LoadConfig(root string) (Config, error) {
 	}
 	cfg.Gate = raw.Gate
 	cfg.DefaultRef = raw.DefaultRef
+	cfg.Signatures = raw.Signatures
+	if err := CompileSigRules(cfg.Signatures); err != nil {
+		return cfg, fmt.Errorf(".cix.yml: %w", err)
+	}
 	return cfg, nil
 }

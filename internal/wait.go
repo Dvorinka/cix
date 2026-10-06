@@ -65,6 +65,7 @@ type VerifyResult struct {
 type WaitOpts struct {
 	RunID       int64
 	Ref         string
+	PR          int    // resolve the run for this PR's head commit
 	Job         string // wait on a single gate job only
 	Gate        string // deploy-path gate override
 	Timeout     time.Duration
@@ -103,9 +104,22 @@ func ResolveRun(api API, opts WaitOpts) (Run, error) {
 	if opts.RunID != 0 {
 		return api.GetRun(opts.RunID)
 	}
-	ref := opts.Ref
 	var runs []Run
 	var err error
+	if opts.PR != 0 {
+		sha, ref, perr := api.PRHead(opts.PR)
+		if perr != nil {
+			return Run{}, fmt.Errorf("cannot resolve PR #%d: %w", opts.PR, perr)
+		}
+		if runs, err = api.ListRuns(sha); err != nil {
+			return Run{}, err
+		}
+		if len(runs) == 0 && ref != "" {
+			runs, err = api.ListRunsForRef(ref)
+		}
+		return newestRun(runs, fmt.Sprintf("PR #%d", opts.PR), err)
+	}
+	ref := opts.Ref
 	if ref == "" {
 		sha, shaErr := revParse("HEAD")
 		if shaErr != nil {
@@ -120,11 +134,15 @@ func ResolveRun(api API, opts WaitOpts) (Run, error) {
 			runs, err = api.ListRunsForRef(ref)
 		}
 	}
+	return newestRun(runs, fmt.Sprintf("ref %q", ref), err)
+}
+
+func newestRun(runs []Run, what string, err error) (Run, error) {
 	if err != nil {
 		return Run{}, err
 	}
 	if len(runs) == 0 {
-		return Run{}, fmt.Errorf("no workflow run found for ref %q", ref)
+		return Run{}, fmt.Errorf("no workflow run found for %s", what)
 	}
 	sort.Slice(runs, func(i, j int) bool { return runs[i].CreatedAt > runs[j].CreatedAt })
 	return runs[0], nil
@@ -301,7 +319,7 @@ func finishFailure(api API, cfg Config, run Run, wf Workflow, jobs []Job, j Job,
 	slice, sig := "", ""
 	if l, err := api.JobLog(j.ID); err == nil {
 		slice = SliceLog(l, failedStep)
-		sig = Signature(slice)
+		sig = SignatureWith(slice, cfg.Signatures)
 	}
 	if opts.RerunFlaky && slice != "" && IsTransient(slice) {
 		if err := api.RerunFailed(run.ID); err == nil {

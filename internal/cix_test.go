@@ -215,6 +215,9 @@ func (f *fakeAPI) GetJobs(id int64) ([]Job, error) {
 func (f *fakeAPI) JobLog(jobID int64) (string, error) { return f.logs[jobID], nil }
 func (f *fakeAPI) Cancel(id int64) error              { f.cancelled = append(f.cancelled, id); return nil }
 func (f *fakeAPI) RerunFailed(id int64) error         { f.reran = true; return nil }
+func (f *fakeAPI) PRHead(pr int) (string, string, error) {
+	return "abc123", "feature-x", nil
+}
 
 func waitOpts(t *testing.T) WaitOpts {
 	return WaitOpts{
@@ -395,5 +398,38 @@ func TestPreflight(t *testing.T) {
 		Files: []string{"web/app.ts"}, Root: root}, &out)
 	if code != 2 {
 		t.Fatalf("code=%d out=%s", code, out.String())
+	}
+}
+
+func TestWaitPRResolution(t *testing.T) {
+	api := &fakeAPI{runs: []Run{baseRun()}, logs: map[int64]string{},
+		jobPages: [][]Job{{job("lint", "completed", "success")}}}
+	var out bytes.Buffer
+	opts := waitOpts(t)
+	opts.RunID = 0
+	opts.PR = 17
+	code := Wait(api, DefaultConfig(), opts, &out)
+	if code != 0 {
+		t.Fatalf("code=%d out=%s", code, out.String())
+	}
+}
+
+func TestSignatureRules(t *testing.T) {
+	cfg := DefaultConfig()
+	cfg.Signatures = []SigRule{{Match: `OutOfMemoryError.*Metaspace`, Name: "gradle/metaspace-oom"}}
+	if err := CompileSigRules(cfg.Signatures); err != nil {
+		t.Fatal(err)
+	}
+	got := SignatureWith("java.lang.OutOfMemoryError: Metaspace\nBUILD FAILED", cfg.Signatures)
+	if got != "gradle/metaspace-oom" {
+		t.Fatalf("sig = %q", got)
+	}
+	// user rule doesn't shadow built-ins
+	if SignatureWith("--- FAIL: TestX\nFAIL", cfg.Signatures) != "gotest/TestX" {
+		t.Fatal("built-in lost to user rules")
+	}
+	// invalid regex rejected at load
+	if err := CompileSigRules([]SigRule{{Match: "[unclosed", Name: "x"}}); err == nil {
+		t.Fatal("bad regex should error")
 	}
 }

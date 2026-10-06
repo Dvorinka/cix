@@ -78,6 +78,7 @@ type API interface {
 	JobLog(jobID int64) (string, error)
 	Cancel(runID int64) error
 	RerunFailed(runID int64) error
+	PRHead(pr int) (sha, ref string, err error)
 }
 
 // GH wraps the gh CLI — all GitHub access delegates to it.
@@ -191,4 +192,23 @@ func (g *GH) Cancel(runID int64) error {
 // RerunFailed re-runs only the failed jobs of a run.
 func (g *GH) RerunFailed(runID int64) error {
 	return g.apiPost(fmt.Sprintf("repos/%s/actions/runs/%d/rerun-failed-jobs", g.Repo, runID))
+}
+
+// PRHead resolves a PR's head sha and branch — `cix wait --pr N` wants the
+// run for the PR's head commit, not the repo's HEAD.
+func (g *GH) PRHead(pr int) (string, string, error) {
+	out, err := g.api(fmt.Sprintf("repos/%s/pulls/%d", g.Repo, pr))
+	if err != nil {
+		return "", "", err
+	}
+	var res struct {
+		Head struct {
+			SHA string `json:"sha"`
+			Ref string `json:"ref"`
+		} `json:"head"`
+	}
+	if err := json.Unmarshal(out, &res); err != nil {
+		return "", "", err
+	}
+	return res.Head.SHA, res.Head.Ref, nil
 }

@@ -1,0 +1,33 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - { goos: linux, goarch: amd64 }
+          - { goos: darwin, goarch: arm64 }
+          - { goos: windows, goarch: amd64 }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: build
+        run: |
+          ver=${GITHUB_REF_NAME}
+          out=cix-${ver}-${{ matrix.goos }}-${{ matrix.goarch }}
+          [ "${{ matrix.goos }}" = windows ] && out=$out.exe
+          CGO_ENABLED=0 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} \
+            go build -ldflags "-s -w -X main.version=$ver" -o "$out" ./cmd/cix
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: cix-*

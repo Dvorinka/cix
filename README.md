@@ -94,6 +94,8 @@ The reason the tool exists. Run resolution is `head_sha` first (the
 reliable matcher for both branch and tag pushes), with ref-name fallback
 for `refs/tags/*`.
 
+- `--pr N` resolves the run for a pull request's head commit — for
+  agents that open the PR then watch its checks.
 - Any job on the deploy path fails → don't wait for siblings: fetch the
   completed job's log, slice the error window, name the failed step from
   `steps[]`, print, exit `2`.
@@ -125,6 +127,8 @@ the push never happens.
 
 Local failure/duration memory from `history.jsonl`.
 
+`cix version` prints the binary version.
+
 ## Configuration
 
 `.cix.yml` at the repo root — all sections optional:
@@ -154,6 +158,14 @@ artifact:
   reject_gradle_tasks: ["assembleDebug", "bundleDebug"]
 
 gate: deploy        # deploy-path gate override
+
+# custom failure signatures — matched before the built-in classifiers.
+# project-specific flakes get their own name instead of generic/*
+signatures:
+  - match: "OutOfMemoryError.*Metaspace"
+    name: gradle/metaspace-oom
+  - match: "Metro has encountered an error"
+    name: metro/crash
 ```
 
 ## Exit codes

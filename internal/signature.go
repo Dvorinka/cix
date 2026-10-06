@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 )
@@ -55,10 +56,55 @@ var classifiers = []struct {
 	{regexp.MustCompile(`(?i)##\[error\]`), "gha"},
 }
 
+// SigRule is a user-configured signature override from .cix.yml — match a
+// project-specific failure mode to a stable name.
+type SigRule struct {
+	Match string `yaml:"match"`
+	Name  string `yaml:"name"`
+	re    *regexp.Regexp
+}
+
+// CompileSigRules validates user signature rules; a bad regex is reported,
+// not silently skipped.
+func CompileSigRules(rules []SigRule) error {
+	for i := range rules {
+		re, err := regexp.Compile(rules[i].Match)
+		if err != nil {
+			return fmt.Errorf("signature rule %q: %w", rules[i].Name, err)
+		}
+		rules[i].re = re
+	}
+	return nil
+}
+
 // Signature derives a stable failure signature from a log slice:
 // "<tool>/<kind>" for recognized classes, else a normalized line prefix.
 func Signature(slice string) string {
+	return signature(slice, nil)
+}
+
+// SignatureWith classifies with user rules first, then the built-ins.
+func SignatureWith(slice string, rules []SigRule) string {
+	return signature(slice, rules)
+}
+
+func signature(slice string, extra []SigRule) string {
 	lines := strings.Split(slice, "\n")
+	for _, r := range extra {
+		if r.re != nil {
+			for _, l := range lines {
+				if r.re.MatchString(l) {
+					return r.Name
+				}
+			}
+		} else if re, err := regexp.Compile(r.Match); err == nil {
+			for _, l := range lines {
+				if re.MatchString(l) {
+					return r.Name
+				}
+			}
+		}
+	}
 	// prefer classifying the most specific lines first
 	for _, c := range classifiers {
 		for _, l := range lines {
