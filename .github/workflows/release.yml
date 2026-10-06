@@ -30,6 +30,6 @@ jobs:
           [ "${{ matrix.goos }}" = windows ] && out=$out.exe
           CGO_ENABLED=0 GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} \
             go build -ldflags "-s -w -X main.version=$ver" -o "$out" ./cmd/cix
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: cix-*
