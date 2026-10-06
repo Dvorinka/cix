@@ -74,6 +74,10 @@ Requires the [`gh` CLI](https://cli.github.com/) authenticated to the
 repo. Go 1.23+.
 
 ```bash
+# one-liner — latest release binary to ~/.local/bin
+curl -fsSL https://raw.githubusercontent.com/Dvorinka/cix/main/install.sh | sh
+
+# or from source
 go install github.com/Dvorinka/cix/cmd/cix@latest
 ```
 

@@ -1,0 +1,23 @@
+name: Bug report
+description: Something doesn't work as documented
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Command run, expected output, actual output.
+      placeholder: "docsync check --json exited 5 with ..."
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      description: OS, tool version (`<tool> version`), how installed.
+      placeholder: "linux amd64, v0.1.0 from releases"
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal reproduction
+      description: A small repo layout or commands that trigger it.
