@@ -1,0 +1,15 @@
+2024-05-01T10:00:01.000Z Downloading https://services.gradle.org/distributions/gradle-8.5-all.zip
+2024-05-01T10:00:12.000Z Unzipping gradle-8.5-all.zip
+2024-05-01T10:00:30.000Z > Task :app:preBuild UP-TO-DATE
+2024-05-01T10:00:31.000Z > Task :app:mergeReleaseResources
+2024-05-01T10:00:35.000Z > Task :app:compileReleaseKotlin FAILED
+2024-05-01T10:00:35.100Z e: file:///workspace/app/src/main/java/dev/relay/MainActivity.kt:42:9 Unresolved reference: RelayBridge
+2024-05-01T10:00:35.200Z e: file:///workspace/app/src/main/java/dev/relay/MainActivity.kt:78:21 Unresolved reference: attachBridge
+2024-05-01T10:00:35.300Z
+2024-05-01T10:00:35.400Z FAILURE: Build failed with an exception.
+2024-05-01T10:00:35.500Z * What went wrong:
+2024-05-01T10:00:35.600Z Execution failed for task ':app:compileReleaseKotlin'.
+2024-05-01T10:00:35.700Z > Compilation error. See log for more details
+2024-05-01T10:00:35.800Z
+2024-05-01T10:00:35.900Z BUILD FAILED in 42s
+2024-05-01T10:00:36.000Z Error: Process completed with exit code 1.

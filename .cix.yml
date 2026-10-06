@@ -1,0 +1,11 @@
+# cix self-configuration — also serves as a living example.
+checks:
+  - name: go
+    paths: ["**/*.go", "go.mod"]
+    run:
+      - go build ./...
+      - go test ./...
+  - name: vet
+    paths: ["**/*.go"]
+    run: [go vet ./...]
+    optional: true

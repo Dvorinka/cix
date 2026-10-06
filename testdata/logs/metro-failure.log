@@ -1,0 +1,10 @@
+2024-05-01T10:02:01.000Z Metro waiting on exp://192.168.1.20:8081
+2024-05-01T10:02:02.000Z info Opening the app...
+2024-05-01T10:02:05.000Z Error: Unable to resolve module ./src/screens/Chat from /workspace/apps/mobile/src/App.tsx: None of these files exist:
+2024-05-01T10:02:05.100Z   * src/screens/Chat(.native|.android.ts|.native.ts|.ts|.android.tsx|.native.tsx|.tsx)
+2024-05-01T10:02:05.200Z   * src/screens/Chat/index(.native|.android.ts|.native.ts|.ts)
+2024-05-01T10:02:05.300Z     at ModuleResolver.resolveDependency (/workspace/node_modules/metro/src/node-haste/DependencyGraph/ModuleResolution.js:112:15)
+2024-05-01T10:02:05.400Z     at DependencyGraph.resolveDependency (/workspace/node_modules/metro/src/node-haste/DependencyGraph.js:235:43)
+2024-05-01T10:02:05.500Z Error: Cannot find module './src/screens/Chat'
+2024-05-01T10:02:05.600Z BUNDLE  ./index.js
+2024-05-01T10:02:05.700Z error Command failed with exit code 1.

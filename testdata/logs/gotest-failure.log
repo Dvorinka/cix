@@ -1,0 +1,12 @@
+2024-05-01T10:05:01.000Z === RUN   TestSendMessage
+2024-05-01T10:05:01.100Z === RUN   TestSendMessage/attachments
+2024-05-01T10:05:01.200Z     message_test.go:88: expected status 201, got 500
+2024-05-01T10:05:01.300Z     message_test.go:89: body: {"error":"attachment store unavailable"}
+2024-05-01T10:05:01.400Z --- FAIL: TestSendMessage (0.12s)
+2024-05-01T10:05:01.500Z     --- FAIL: TestSendMessage/attachments (0.05s)
+2024-05-01T10:05:01.600Z === RUN   TestListConversations
+2024-05-01T10:05:01.700Z --- PASS: TestListConversations (0.02s)
+2024-05-01T10:05:01.800Z FAIL
+2024-05-01T10:05:01.900Z FAIL	github.com/Dvorinka/relay/internal/chat	0.412s
+2024-05-01T10:05:02.000Z ok  	github.com/Dvorinka/relay/internal/issues	0.110s
+2024-05-01T10:05:02.100Z Error: Process completed with exit code 1.
