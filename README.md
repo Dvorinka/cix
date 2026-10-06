@@ -128,6 +128,7 @@ the push never happens.
 Local failure/duration memory from `history.jsonl`.
 
 `cix version` prints the binary version.
+`cix completion <bash|zsh|fish>` prints a completion script.
 
 ## Configuration
 

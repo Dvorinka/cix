@@ -24,6 +24,7 @@ usage:
   cix preflight [--base <ref>] [--files a.go,b.ts] [--all] [--json]
   cix history   [--job <name>] [--failures] [--json]
   cix version
+  cix completion <bash|zsh|fish>
 
 exit codes: 0 ok · 1 non-gating warnings · 2 gating failure/blocked ·
             3 verify/artifact gate failed · 4 timeout · 5 operational error
@@ -36,6 +37,15 @@ func main() {
 	}
 	if os.Args[1] == "version" || os.Args[1] == "--version" || os.Args[1] == "-version" {
 		fmt.Println("cix", version)
+		return
+	}
+	if os.Args[1] == "completion" && len(os.Args) >= 3 {
+		s, err := internal.Completion(os.Args[2])
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(5)
+		}
+		fmt.Print(s)
 		return
 	}
 	args := os.Args[2:]
